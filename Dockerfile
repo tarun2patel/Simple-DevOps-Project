@@ -1,11 +1,12 @@
-FROM node:8.16 as build-deps
-WORKDIR /usr/src/app
-COPY package.json yarn.lock ./
-RUN yarn
-COPY . ./
-RUN yarn build
+FROM python:3.6.4-alpine3.6
+ENV FLASK_APP=minitwit
  
-FROM nginx:1.12-alpine
-COPY --from=build-deps /usr/src/app/build /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+COPY . /app
+WORKDIR /app
+ 
+RUN pip install --editable .
+RUN flask initdb
+ 
+EXPOSE 5000
+ 
+CMD [ "flask", "run", "--host=0.0.0.0" ]
